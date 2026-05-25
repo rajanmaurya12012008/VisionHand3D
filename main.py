@@ -1,48 +1,46 @@
 import cv2
-import mediapipe as mp
 
-mp_hands = mp.solutions.hands
-hands = mp_hands.Hands()
-
-mp_draw = mp.solutions.drawing_utils
+from hand import detect_hand
+from draw import draw_with_finger, clear_canvas
 
 cap = cv2.VideoCapture(0)
 
 while True:
+
     success, img = cap.read()
 
-    imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    results = hands.process(imgRGB)
+    img = cv2.flip(img, 1)
 
-    h, w, c = img.shape
+    img, landmarks = detect_hand(img)
 
-    if results.multi_hand_landmarks:
+    if len(landmarks) != 0:
 
-        for handLms in results.multi_hand_landmarks:
+        # Index finger tip
+        x, y = landmarks[8]
 
-            mp_draw.draw_landmarks(img, handLms, mp_hands.HAND_CONNECTIONS)
+        # Draw using finger
+        draw_with_finger(img, x, y)
 
-            landmarks = []
+        # Thumb tip
+        thumb_x, thumb_y = landmarks[4]
 
-            for id, lm in enumerate(handLms.landmark):
+        # Distance between thumb & index
+        distance = abs(x - thumb_x)
 
-                cx = int(lm.x * w)
-                cy = int(lm.y * h)
+        # Pinch gesture = clear screen
+        if distance < 40:
 
-                landmarks.append((cx, cy))
+            clear_canvas()
 
-            # Index finger logic
-            if landmarks[8][1] < landmarks[6][1]:
-
-                cv2.putText(
-                    img,
-                    "INDEX UP",
-                    (50, 50),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    1,
-                    (0, 255, 0),
-                    3
-                )
+    cv2.putText(
+        img,
+        "Draw with Index Finger",
+        (20, 50),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        1,
+        (255, 0, 0),
+        3
+    )
 
     cv2.imshow("VisionHand3D", img)
 

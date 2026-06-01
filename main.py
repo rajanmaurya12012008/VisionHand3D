@@ -34,7 +34,7 @@ while True:
 
     cv2.putText(
         img,
-        "Draw with Index Finger",
+        "Draw with Inex Finger",
         (20, 50),
         cv2.FONT_HERSHEY_SIMPLEX,
         1,
@@ -42,7 +42,7 @@ while True:
         3
     )
 
-    cv2.imshow("VisionHand3D", img)
+    cv2.imshow("VisionHand 3D", img)
 
     if cv2.waitKey(1) & 0xFF == 27:
         break

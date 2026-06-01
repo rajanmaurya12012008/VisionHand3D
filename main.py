@@ -34,7 +34,7 @@ while True:
 
     cv2.putText(
         img,
-        "Draw with Index finger",
+        "Draw with Index Finger",
         (20, 50),
         cv2.FONT_HERSHEY_SIMPLEX,
         1,

@@ -10,7 +10,7 @@ while True:
 
     success, img = cap.read()
 
-    shape_name = " "
+    shape_name = ""
 
     if not success:
         print("Camera Error")

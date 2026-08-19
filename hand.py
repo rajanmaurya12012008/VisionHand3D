@@ -8,7 +8,6 @@ mp_draw = mp.solutions.drawing_utils
 
 
 def detect_hand(img):
-
     imgRGB = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
     results = hands.process(imgRGB)

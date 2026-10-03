@@ -1,10 +1,14 @@
 import cv2
 
-from hand import detect_hand
+from hand import detect_hand, draw_hand
 from draw import draw_with_finger, clear_canvas, get_points
-from shape import detect_shape, create_perfect_circle, is_circle_complete
+from shape import detect_shape, create_perfect_circle
+
 
 cap = cv2.VideoCapture(0)
+
+# Final perfect circle
+final_circle = None
 
 
 while True:
@@ -23,7 +27,7 @@ while True:
 
 
     # Detect hand
-    img, landmarks = detect_hand(img)
+    img, landmarks, hand_landmarks = detect_hand(img)
 
 
     if len(landmarks) != 0:
@@ -31,57 +35,79 @@ while True:
         # Index Finger Tip
         x, y = landmarks[8]
 
-
         # Thumb Tip
         thumb_x, thumb_y = landmarks[4]
-
 
         # Distance between thumb and index
         distance = abs(x - thumb_x)
 
 
-        # Get current points
+        # Get drawing points
         points = get_points()
 
 
-        # Detect shape
-        shape_name = detect_shape(points)
+        # If we are already drawing
+        if final_circle is None:
 
-        #Draw rough line
-        draw_with_finger(img, x, y)
-
-
-        # If circle is done
-        if shape_name == "Circle":
-
-            circle = create_perfect_circle(points)
+            # Add finger point to drawing
+            draw_with_finger(
+                img,
+                x,
+                y
+            )
 
 
-            if circle is not None:
-
-                center_x, center_y, radius = circle
-
-
-                # Draw perfect circle
-                cv2.circle(
-                    img,
-                    (center_x, center_y),
-                    radius,
-                    (0, 255, 0),
-                    5
-                )
+            # Detect shape
+            shape_name = detect_shape(points)
 
 
-        else:
+            # Circle completed
+            if shape_name == "Circle":
 
-            # Normal rough drawing
-            draw_with_finger(img, x, y)
+                circle = create_perfect_circle(points)
 
 
-        # Pinch = Clear Canvas
+                if circle is not None:
+
+                    # Save perfect circle
+                    final_circle = circle
+
+                    # Remove rough drawing
+                    clear_canvas()
+
+
+        # Pinch = clear everything
         if distance < 40:
 
             clear_canvas()
+
+            final_circle = None
+
+            shape_name = ""
+
+
+    # Draw perfect circle
+    if final_circle is not None:
+
+        center_x, center_y, radius = final_circle
+
+        cv2.circle(
+            img,
+            (center_x, center_y),
+            radius,
+            (0, 255, 0),
+            5
+        )
+
+        shape_name = "Perfect Circle"
+
+
+    # Draw hand landmarks LAST
+    # So circle doesn't hide the finger
+    img = draw_hand(
+        img,
+        hand_landmarks
+    )
 
 
     # Instruction
@@ -121,4 +147,5 @@ while True:
 
 
 cap.release()
+
 cv2.destroyAllWindows()

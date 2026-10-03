@@ -13,12 +13,14 @@ def distance(p1, p2):
 
 def is_shape_complete(points):
 
+    # Minimum points
     if len(points) < 30:
         return False
 
     start_point = points[0]
     end_point = points[-1]
 
+    # Distance between start and end
     gap = distance(
         start_point,
         end_point
@@ -35,22 +37,32 @@ def is_shape_complete(points):
 
     size = max(width, height)
 
-    if size == 0:
+    if size < 100:
         return False
 
-    # Finger should return near starting point
-    if gap < size * 0.15:
-        return True
+    # Finger must come near starting point
+    if gap > size * 0.10:
+        return False
 
-    return False
+    # Calculate total distance travelled
+    path_length = 0
+
+    for i in range(1, len(points)):
+
+        path_length += distance(
+            points[i - 1],
+            points[i]
+        )
+
+    # Make sure user actually drew a proper shape
+    if path_length < size * 1.5:
+        return False
+
+    return True
 
 
 def detect_shape(points):
 
-    if len(points) < 30:
-        return ""
-
-    # Don't detect until drawing is complete
     if not is_shape_complete(points):
         return ""
 
@@ -61,8 +73,11 @@ def detect_shape(points):
 
     contour = contour.reshape((-1, 1, 2))
 
+    # Remove unnecessary noise
+    hull = cv2.convexHull(contour)
+
     perimeter = cv2.arcLength(
-        contour,
+        hull,
         True
     )
 
@@ -70,21 +85,27 @@ def detect_shape(points):
         return ""
 
     approx = cv2.approxPolyDP(
-        contour,
-        0.02 * perimeter,
+        hull,
+        0.04 * perimeter,
         True
     )
 
     sides = len(approx)
 
 
-    # Triangle
+    # -----------------
+    # TRIANGLE
+    # -----------------
+
     if sides == 3:
         return "Triangle"
 
 
-    # Circle
-    area = cv2.contourArea(contour)
+    # -----------------
+    # CIRCLE
+    # -----------------
+
+    area = cv2.contourArea(hull)
 
     if area > 0:
 
@@ -92,7 +113,7 @@ def detect_shape(points):
             4 * math.pi * area
         ) / (perimeter * perimeter)
 
-        if circularity > 0.60 and sides > 6:
+        if circularity > 0.65 and sides >= 7:
             return "Circle"
 
 
@@ -135,13 +156,15 @@ def create_perfect_triangle(points):
 
     contour = contour.reshape((-1, 1, 2))
 
+    hull = cv2.convexHull(contour)
+
     perimeter = cv2.arcLength(
-        contour,
+        hull,
         True
     )
 
     approx = cv2.approxPolyDP(
-        contour,
+        hull,
         0.04 * perimeter,
         True
     )

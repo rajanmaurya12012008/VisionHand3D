@@ -2,8 +2,7 @@ import cv2
 
 from hand import detect_hand
 from draw import draw_with_finger, clear_canvas, get_points
-from shape import detect_shape, create_perfect_circle
-
+from shape import detect_shape, create_perfect_circle, is_circle_complete
 
 cap = cv2.VideoCapture(0)
 

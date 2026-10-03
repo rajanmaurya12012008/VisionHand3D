@@ -1,14 +1,15 @@
 import cv2
-
+import numpy as np
 from hand import detect_hand, draw_hand
 from draw import draw_with_finger, clear_canvas, get_points
-from shape import detect_shape, create_perfect_circle
+from shape import detect_shape, create_perfect_circle, create_perfect_triangle
 
 
 cap = cv2.VideoCapture(0)
 
 # Final perfect circle
 final_circle = None
+final_triangle = None
 
 
 while True:
@@ -47,9 +48,9 @@ while True:
 
 
         # If we are already drawing
-        if final_circle is None:
+        if final_circle is None and final_triangle is None:
 
-            # Add finger point to drawing
+            # Draw rough line
             draw_with_finger(
                 img,
                 x,
@@ -61,7 +62,7 @@ while True:
             shape_name = detect_shape(points)
 
 
-            # Circle completed
+            # Circle 
             if shape_name == "Circle":
 
                 circle = create_perfect_circle(points)
@@ -75,6 +76,15 @@ while True:
                     # Remove rough drawing
                     clear_canvas()
 
+            #triangle
+            elif shape_name == "Triangle":
+                triangle = create_perfect_triangle(points)
+
+                if triangle is not None:
+                    final_triangle = triangle
+
+                    clear_canvas()
+
 
         # Pinch = clear everything
         if distance < 40:
@@ -82,6 +92,7 @@ while True:
             clear_canvas()
 
             final_circle = None
+            final_triangle = None
 
             shape_name = ""
 
@@ -100,6 +111,24 @@ while True:
         )
 
         shape_name = "Perfect Circle"
+
+    # Draw perfect triangle
+    if final_triangle is not None:
+        
+        triangle_points = np.array(
+            final_triangle,
+            dtype = np.int32
+        )
+
+    cv2.polylines(
+        img,
+        [triangle_points],
+        True,
+        (0, 255, 0),
+        5
+    )
+
+    shape_name = "Perfect Triangle"
 
 
     # Draw hand landmarks LAST

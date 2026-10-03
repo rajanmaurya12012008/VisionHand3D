@@ -47,11 +47,13 @@ while True:
         # Detect shape
         shape_name = detect_shape(points)
 
+        #Draw rough line
+        draw_with_finger(img, x, y)
 
-        # If Circle detected
+
+        # If circle is done
         if shape_name == "Circle":
 
-            # Create perfect mathematical circle
             circle = create_perfect_circle(points)
 
 

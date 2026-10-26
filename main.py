@@ -120,6 +120,14 @@ while True:
             dtype = np.int32
         )
 
+        cv2.polylines(
+            img,
+            [triangle_points],
+            True,
+            (0, 255, 0),
+            5
+        )
+
         shape_name = "Perfect Triangle"
 
 

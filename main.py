@@ -112,7 +112,7 @@ while True:
 
         shape_name = "Perfect Circle"
 
-    # Draw perfect triangle
+    # Draw perfect Triangle
     if final_triangle is not None:
         
         triangle_points = np.array(

@@ -131,7 +131,7 @@ while True:
         shape_name = "Perfect Triangle"
 
 
-    # Draw hand landmarks Last
+    # Draw hand landmarks LAST
 
     # So circle doesn't hide the finger
     img = draw_hand(

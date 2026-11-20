@@ -7,6 +7,10 @@ from shape import detect_shape, create_perfect_circle, create_perfect_triangle
 
 cap = cv2.VideoCapture(0)
 
+if not cap.isOpened():
+    print("Camera could not be open!!!")
+    exit()
+
 # Final perfect circle
 final_circle = None
 final_triangle = None
@@ -19,8 +23,8 @@ while True:
     shape_name = ""
 
     if not success:
-        print("Camera Error")
-        continue
+        print("Camera Erro - cameraz not aavailable")
+        break
 
 
     # Mirror camera

@@ -61,8 +61,7 @@ while True:
                 y
             )
 
-
-            # Detect shape
+                # Detect shape
             shape_name = detect_shape(points)
 
 

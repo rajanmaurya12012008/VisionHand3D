@@ -145,6 +145,26 @@ while True:
 
         shape_name = "Perfect Triangle"
 
+    # Draw perfect Square or Rectangle
+    if final_box is not None:
+
+        box_name, box_points = final_box
+
+        box_array = np.array(
+            box_points,
+            dtype=np.int32
+        )
+
+        cv2.polylines(
+            img,
+            [box_array],
+            True,
+            (0, 255, 0),
+            5
+        )
+
+        shape_name = "Perfect " + box_name
+
 
     # Draw hand landmarks LAST
 

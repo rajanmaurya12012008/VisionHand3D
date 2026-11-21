@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from hand import detect_hand, draw_hand
 from draw import draw_with_finger, clear_canvas, get_points
-from shape import detect_shape, create_perfect_circle, create_perfect_triangle
+from shape import detect_shape, create_perfect_circle, create_perfect_triangle, create_perfect_box
 
 
 cap = cv2.VideoCapture(0)
@@ -14,6 +14,7 @@ if not cap.isOpened():
 # Final perfect circle
 final_circle = None
 final_triangle = None
+final_box = None
 
 
 while True:
@@ -52,7 +53,7 @@ while True:
 
 
         # If we are already drawing
-        if final_circle is None and final_triangle is None:
+        if final_circle is None and final_triangle is None and final_box is None:
 
             # Draw rough line
             draw_with_finger(
@@ -85,6 +86,17 @@ while True:
 
                 if triangle is not None:
                     final_triangle = triangle
+
+                    clear_canvas()
+
+            # Square or Rectangle
+            elif shape_name == "Square" or shape_name == "Rectangle":
+
+                box = create_perfect_box(points, shape_name)
+
+                if box is not None:
+
+                    final_box = (shape_name, box)
 
                     clear_canvas()
 

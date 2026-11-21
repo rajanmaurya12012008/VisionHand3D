@@ -38,7 +38,7 @@ while True:
 
     if len(landmarks) != 0:
 
-        # Index Finger Tip
+        # Index Finger tip
         x, y = landmarks[8]
         x, y = smooth_finger(x,y)
 

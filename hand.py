@@ -51,3 +51,21 @@ def draw_hand(img, hand_landmarks):
         )
 
     return img
+
+# Global variable
+smooth_x = None
+smooth_y = None
+
+def smooth_finger(x, y):
+    global smooth_x, smooth_y
+
+    alpha = 0.35
+
+    if smooth_x is None:
+        smooth_x = x
+        smooth_y = y
+    else:
+        smooth_x = int(alpha * x + (1 - alpha) * smooth_x)
+        smooth_y = int(alpha * y + (1 - alpha) * smooth_y)
+
+    return smooth_x, smooth_y

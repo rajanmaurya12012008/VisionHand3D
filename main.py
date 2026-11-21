@@ -108,6 +108,7 @@ while True:
 
             final_circle = None
             final_triangle = None
+            final_box = None
 
             shape_name = ""
 

@@ -17,10 +17,7 @@ def is_shape_complete(points):
     if len(points) < 30:
         return False
 
-    start = points[0]
-    end = points[-1]
-
-    gap = distance(start, end)
+    gap = distance(points[0], points[-1])
 
     pts = np.array(points, dtype=np.int32)
 
@@ -31,11 +28,9 @@ def is_shape_complete(points):
     if size < 80:
         return False
 
-    # Check whether finger returned near starting point
     if gap > size * 0.15:
         return False
 
-    # Check how much the finger has travelled
     path_length = sum(
         distance(points[i - 1], points[i])
         for i in range(1, len(points))
@@ -47,50 +42,76 @@ def is_shape_complete(points):
     return True
 
 
-def detect_shape(points):
-
-    if not is_shape_complete(points):
-        return ""
+def get_approximation(points):
 
     pts = np.array(points, dtype=np.int32)
 
     contour = pts.reshape((-1, 1, 2))
 
-    # Get outer boundary
     hull = cv2.convexHull(contour)
 
     perimeter = cv2.arcLength(hull, True)
-    area = cv2.contourArea(hull)
 
-    if perimeter == 0 or area == 0:
-        return ""
+    if perimeter == 0:
+        return None, None
 
-    # Simplify boundary
     approx = cv2.approxPolyDP(
         hull,
         0.025 * perimeter,
         True
     )
 
+    return hull, approx
+
+
+def detect_shape(points):
+
+    if not is_shape_complete(points):
+        return ""
+
+    hull, approx = get_approximation(points)
+
+    if hull is None:
+        return ""
+
     sides = len(approx)
 
-    # Triangle detection
+    # Triangle
     if sides == 3:
         return "Triangle"
 
-    # Circle detection
-    circularity = (4 * math.pi * area) / (perimeter ** 2)
+    # Square or Rectangle
+    if sides == 4:
 
-    x, y, width, height = cv2.boundingRect(hull)
+        x, y, width, height = cv2.boundingRect(hull)
 
-    ratio = width / height if height != 0 else 0
+        ratio = width / height if height != 0 else 0
 
-    if (
-        circularity > 0.68
-        and 0.65 < ratio < 1.35
-        and sides >= 5
-    ):
-        return "Circle"
+        if 0.85 <= ratio <= 1.15:
+            return "Square"
+
+        return "Rectangle"
+
+    # Circle
+    area = cv2.contourArea(hull)
+    perimeter = cv2.arcLength(hull, True)
+
+    if area > 0 and perimeter > 0:
+
+        circularity = (
+            4 * math.pi * area
+        ) / (perimeter ** 2)
+
+        x, y, width, height = cv2.boundingRect(hull)
+
+        ratio = width / height if height != 0 else 0
+
+        if (
+            circularity > 0.68
+            and 0.65 < ratio < 1.35
+            and sides >= 5
+        ):
+            return "Circle"
 
     return ""
 
@@ -117,24 +138,46 @@ def create_perfect_triangle(points):
     if len(points) < 30:
         return None
 
-    pts = np.array(points, dtype=np.int32)
+    hull, approx = get_approximation(points)
 
-    contour = pts.reshape((-1, 1, 2))
-
-    hull = cv2.convexHull(contour)
-
-    perimeter = cv2.arcLength(hull, True)
-
-    approx = cv2.approxPolyDP(
-        hull,
-        0.025 * perimeter,
-        True
-    )
-
-    if len(approx) != 3:
+    if hull is None or len(approx) != 3:
         return None
 
     return [
         (int(point[0][0]), int(point[0][1]))
         for point in approx
     ]
+
+
+def create_perfect_box(points, shape_name):
+
+    if len(points) < 30:
+        return None
+
+    pts = np.array(points, dtype=np.int32)
+
+    x, y, width, height = cv2.boundingRect(pts)
+
+    # Make all four sides equal for a square
+    if shape_name == "Square":
+
+        side = max(width, height)
+
+        center_x = x + width // 2
+        center_y = y + height // 2
+
+        x = center_x - side // 2
+        y = center_y - side // 2
+
+        width = side
+        height = side
+
+    # Four corners
+    box_points = [
+        (x, y),
+        (x + width, y),
+        (x + width, y + height),
+        (x, y + height)
+    ]
+
+    return box_points

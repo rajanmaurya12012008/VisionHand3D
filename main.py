@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from hand import detect_hand, draw_hand
+from hand import detect_hand, draw_hand, smooth_finger
 from draw import draw_with_finger, clear_canvas, get_points
 from shape import detect_shape, create_perfect_circle, create_perfect_triangle, create_perfect_box
 
@@ -40,6 +40,7 @@ while True:
 
         # Index Finger Tip
         x, y = landmarks[8]
+        x, y = smooth_finger(x,y)
 
         # Thumb Tip
         thumb_x, thumb_y = landmarks[4]

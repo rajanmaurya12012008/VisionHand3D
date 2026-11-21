@@ -56,14 +56,10 @@ while True:
         if final_circle is None and final_triangle is None and final_box is None:
 
             # Draw rough line
-            draw_with_finger(
-                img,
-                x,
-                y
-            )
-
-                # Detect shape
+            draw_with_finger(img, x, y)
             shape_name = detect_shape(points)
+
+            shape_name = detect_shape(get_points())
 
 
             # Circle 

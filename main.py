@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 from hand import detect_hand, draw_hand
-from draw import draw_with_finger, clear_canvas, get_points
+from draw import draw_with_finger, clear_canvas, get_points, show_drawing
 from shape import detect_shape, create_perfect_circle, create_perfect_triangle, create_perfect_box
 
 
